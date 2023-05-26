@@ -1,4 +1,4 @@
 pub mod loading;
 pub mod player;
 pub mod camera;
-pub mod background;
+pub mod infinite_background;

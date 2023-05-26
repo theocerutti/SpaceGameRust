@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-use crate::entities::player::Player;
+use crate::plugins::infinite_background::InfiniteBackground;
+use crate::plugins::player::Player;
 use crate::state::GameState;
 
 #[derive(Component)]
@@ -22,12 +23,21 @@ fn setup(mut commands: Commands) {
 }
 
 fn camera_movement_system(
-    mut cameras: Query<&mut Transform, (With<Camera>, Without<Player>)>,
-    mut players: Query<&Transform, (With<Player>, Without<Camera>)>
+    mut camera_query: Query<&mut Transform, (With<Camera>, Without<Player>, Without<InfiniteBackground>)>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera>, Without<InfiniteBackground>)>,
+    mut background_query: Query<&mut Transform, (With<InfiniteBackground>, Without<Camera>, Without<Player>)>,
 ) {
-    for mut transform in cameras.iter_mut() {
-        for transform_player in players.iter_mut() {
-            transform.translation = transform_player.translation;
+    let mut camera_transform = camera_query.get_single_mut();
+    let mut background_transform = background_query.get_single_mut();
+    let player_transform = player_query.get_single();
+
+    if let Ok(player_transform) = player_transform {
+        if let Ok(mut camera_transform) = camera_transform {
+            camera_transform.translation = player_transform.translation;
+        }
+        if let Ok(mut background_transform) = background_transform {
+            background_transform.translation = player_transform.translation;
+            background_transform.translation.z = -1.;
         }
     }
 }

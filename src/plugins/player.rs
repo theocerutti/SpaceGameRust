@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::entities::player::{create_player, Player};
-use crate::entities::ship::Ship;
+use crate::components::components::*;
 use crate::plugins::loading::ShipHandles;
 use crate::state::GameState;
+
+#[derive(Component)]
+pub struct Player;
 
 pub struct PlayerPlugin;
 
@@ -24,6 +26,40 @@ fn setup(commands: Commands, ship_textures: Res<ShipHandles>, image_assets: Res<
     create_player(commands, ship_textures.by_key("blue1"), image_assets);
 }
 
+pub fn create_player<'a>(mut commands: Commands, handle: Handle<Image>, image_assets: Res<Assets<Image>>) {
+    let image_asset = image_assets.get(&handle).unwrap();
+    let size_asset = Vec2 {
+        x: image_asset.texture_descriptor.size.width as f32,
+        y: image_asset.texture_descriptor.size.height as f32,
+    };
+    commands.spawn(Player)
+        .insert(Ship {
+            speed: 1.,
+            rotation_speed: 1.,
+        })
+        .insert(SpriteBundle {
+            transform: Transform {
+                scale: Vec3::new(1., 1., 0.),
+                ..default()
+            },
+            sprite: Sprite {
+                ..default()
+            },
+            texture: handle,
+            ..default()
+        })
+        .insert(RigidBody::Dynamic)
+        .insert(GravityScale(0.))
+        .insert(Damping::default())
+        .insert(ExternalImpulse::default())
+        .insert(Velocity::linear(Vec2::ZERO))
+        .insert(Collider::cuboid(size_asset.x / 2., size_asset.y / 2.))
+        .insert(ColliderMassProperties::Density(1.))
+        .insert(ColliderMassProperties::Mass(1.))
+        .insert(ContinuousImpulse)
+        .insert(TransformBundle::from(Transform::from_xyz(0., -100., 0.)));
+}
+
 fn ship_dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Player>>) {
     for mut velocity in query.iter_mut() {
         let elapsed = time.delta_seconds();
@@ -39,9 +75,10 @@ fn ship_input_system(
         &mut Velocity,
         &Transform,
         &Ship,
+        Option<&ContinuousImpulse>
     )>,
 ) {
-    for (mut impulse, mut velocity, transform, ship) in query.iter_mut() {
+    for (mut impulse, mut velocity, transform, ship, continuous_impulse) in query.iter_mut() {
         let rotation = if keyboard_input.pressed(KeyCode::Q) || keyboard_input.pressed(KeyCode::Left) {
             1
         } else if keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right) {
@@ -52,6 +89,8 @@ fn ship_input_system(
         if rotation != 0 {
             velocity.angvel = rotation as f32 * ship.rotation_speed;
         }
-        impulse.impulse = (transform.rotation * (Vec3::Y * ship.speed)).truncate();
+        if let Some(continuous_impulse) = continuous_impulse {
+            impulse.impulse = (transform.rotation * (Vec3::Y * ship.speed)).truncate();
+        }
     }
 }

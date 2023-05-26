@@ -17,7 +17,7 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct BackgroundHandles {
-    #[asset(path = "backgrounds/bg1.png")]
+    #[asset(path = "backgrounds/bg1_infinite.png")]
     bg1: Handle<Image>,
 }
 
