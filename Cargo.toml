@@ -1,0 +1,12 @@
+[package]
+name = "space-game-rust"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev.package.bevy_rapier2d]
+opt-level = 3
+
+[dependencies]
+bevy = "0.10.1"
+bevy_asset_loader = { version = "0.16.0", features = ["2d", "standard_dynamic_assets"] }
+bevy_rapier2d = "0.21.0"
