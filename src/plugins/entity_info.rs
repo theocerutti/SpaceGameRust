@@ -8,13 +8,13 @@ impl Plugin for EntityInfoPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                entity_info_update_system.in_base_set(PreUpdate),
+                update_system.in_base_set(PreUpdate),
             ),
         );
     }
 }
 
-fn entity_info_update_system(
+fn update_system(
     mut entities: Query<(&mut EntityInfo, &Transform)>,
 ) {
     for (mut entity_info, transform) in entities.iter_mut() {

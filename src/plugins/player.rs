@@ -15,8 +15,8 @@ impl Plugin for PlayerPlugin {
         app.add_system(setup.in_schedule(OnEnter(GameState::Playing)));
         app.add_systems(
             (
-                ship_input_system,
-                ship_dampening_system,
+                input_system,
+                dampening_system,
             ).in_set(OnUpdate(GameState::Playing)),
         );
     }
@@ -60,7 +60,7 @@ pub fn create_player<'a>(mut commands: Commands, handle: Handle<Image>, image_as
         .insert(TransformBundle::from(Transform::from_xyz(0., 0., 0.)));
 }
 
-fn ship_dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Player>>) {
+fn dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Player>>) {
     for mut velocity in query.iter_mut() {
         let elapsed = time.delta_seconds();
         velocity.angvel *= 0.1f32.powf(elapsed);
@@ -68,7 +68,7 @@ fn ship_dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<P
     }
 }
 
-fn ship_input_system(
+fn input_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(
         &mut ExternalImpulse,

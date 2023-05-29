@@ -12,7 +12,7 @@ impl Plugin for CameraPlugin {
         app.add_system(setup.in_schedule(OnEnter(GameState::Playing)));
         app.add_systems(
             (
-                camera_movement_system,
+                movement_system,
             ),
         );
     }
@@ -27,7 +27,7 @@ fn setup(mut commands: Commands) {
     ));
 }
 
-fn camera_movement_system(
+fn movement_system(
     mut camera_query: Query<&mut Transform, (With<Camera>, Without<Player>)>,
     player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
 ) {
