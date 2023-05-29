@@ -8,3 +8,8 @@ pub struct Ship {
 
 #[derive(Component)]
 pub struct ContinuousImpulse;
+
+#[derive(Component)]
+pub struct EntityInfo {
+    pub last_position: Vec3,
+}

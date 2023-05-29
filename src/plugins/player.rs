@@ -57,7 +57,7 @@ pub fn create_player<'a>(mut commands: Commands, handle: Handle<Image>, image_as
         .insert(ColliderMassProperties::Density(1.))
         .insert(ColliderMassProperties::Mass(1.))
         .insert(ContinuousImpulse)
-        .insert(TransformBundle::from(Transform::from_xyz(0., -100., 0.)));
+        .insert(TransformBundle::from(Transform::from_xyz(0., 0., 0.)));
 }
 
 fn ship_dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Player>>) {
@@ -89,7 +89,7 @@ fn ship_input_system(
         if rotation != 0 {
             velocity.angvel = rotation as f32 * ship.rotation_speed;
         }
-        if let Some(continuous_impulse) = continuous_impulse {
+        if let Some(_continuous_impulse) = continuous_impulse {
             impulse.impulse = (transform.rotation * (Vec3::Y * ship.speed)).truncate();
         }
     }

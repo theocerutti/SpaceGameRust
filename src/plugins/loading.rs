@@ -17,15 +17,24 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct BackgroundHandles {
-    #[asset(path = "backgrounds/bg1_infinite.png")]
+    #[asset(path = "backgrounds/bg1.png")]
     bg1: Handle<Image>,
+    #[asset(path = "backgrounds/bg2.png")]
+    bg2: Handle<Image>,
+    #[asset(path = "backgrounds/bg3.png")]
+    bg3: Handle<Image>,
+    #[asset(path = "backgrounds/bg4.png")]
+    bg4: Handle<Image>,
 }
 
 impl BackgroundHandles {
     pub fn by_key(&self, key: &str) -> Handle<Image> {
         match key {
             "bg1" => self.bg1.clone(),
-            _ => panic!("ship atlas does not exist"),
+            "bg2" => self.bg2.clone(),
+            "bg3" => self.bg3.clone(),
+            "bg4" => self.bg4.clone(),
+            _ => panic!("background atlas does not exist"),
         }
     }
 }
