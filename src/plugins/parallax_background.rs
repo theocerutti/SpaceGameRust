@@ -31,7 +31,7 @@ fn update_map_system(
 
     if let Ok((camera_entity_info, camera_transform)) = camera {
         for (mut sprite, layer, mut transform) in layers.iter_mut() {
-            let handle = bg_textures.by_key("bg1");
+            let handle = bg_textures.by_key(layer.handle_key.as_str());
             let image_asset = image_assets.get(&handle).unwrap();
             let size_asset = Vec2 {
                 x: image_asset.texture_descriptor.size.width as f32,
@@ -39,28 +39,27 @@ fn update_map_system(
             };
             let mut background_rect = sprite.rect.unwrap();
             let moved = (camera_entity_info.last_position - camera_transform.translation) * layer.speed;
-            background_rect.min.x -= moved.x;
-            background_rect.max.x -= moved.x;
-            if background_rect.min.x > size_asset.x / 2. {
-                background_rect.min.x = 0.;
-                background_rect.max.x = size_asset.x / 2.;
-            }
-            if background_rect.min.x < 0. {
-                background_rect.min.x = size_asset.x / 2.;
-                background_rect.max.x = size_asset.x;
-            }
-            background_rect.min.y += moved.y;
-            background_rect.max.y += moved.y;
-            if background_rect.min.y > size_asset.y / 2. {
-                background_rect.min.y = 0.;
-                background_rect.max.y = size_asset.y / 2.;
-            }
-            if background_rect.min.y < 0. {
-                background_rect.min.y = size_asset.y / 2.;
-                background_rect.max.y = size_asset.y;
+
+            for axis in 0..2 {
+                let is_y = axis == 1;
+                if is_y {
+                    background_rect.min[axis] += moved[axis];
+                    background_rect.max[axis] += moved[axis];
+                } else {
+                    background_rect.min[axis] -= moved[axis];
+                    background_rect.max[axis] -= moved[axis];
+                }
+                if background_rect.min[axis] > size_asset[axis] / 2. {
+                    background_rect.min[axis] = 0.;
+                    background_rect.max[axis] = size_asset[axis] / 2.;
+                }
+                if background_rect.min[axis] < 0. {
+                    background_rect.min[axis] = size_asset[axis] / 2.;
+                    background_rect.max[axis] = size_asset[axis];
+                }
             }
             sprite.rect = Option::from(background_rect);
-            transform.translation = camera_transform.translation;
+            transform.translation = camera_transform.translation; // TODO: bad: have to always move the background to the camera position.
             transform.translation.z = -layer.order_index as f32;
         }
     }
