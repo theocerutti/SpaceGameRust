@@ -12,6 +12,7 @@ impl Plugin for LoadingPlugin {
         );
         app.add_collection_to_loading_state::<_, ShipHandles>(GameState::Load);
         app.add_collection_to_loading_state::<_, BackgroundHandles>(GameState::Load);
+        app.add_collection_to_loading_state::<_, ProjectileHandles>(GameState::Load);
     }
 }
 
@@ -65,6 +66,21 @@ impl ShipHandles {
             "red2" => self.red2.clone(),
             "red3" => self.red3.clone(),
             _ => panic!("ship atlas does not exist"),
+        }
+    }
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct ProjectileHandles {
+    #[asset(path = "projectiles/projectile1.png")]
+    projectile1: Handle<Image>,
+}
+
+impl ProjectileHandles {
+    pub fn by_key(&self, key: &str) -> Handle<Image> {
+        match key {
+            "projectile1" => self.projectile1.clone(),
+            _ => panic!("projectile atlas does not exist"),
         }
     }
 }
