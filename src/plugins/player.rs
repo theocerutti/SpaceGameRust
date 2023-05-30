@@ -44,7 +44,7 @@ fn create_player(mut commands: Commands, handle: Handle<Image>, image_assets: Re
             texture: handle,
             ..default()
         })
-        .insert(RigidBody::Dynamic)
+        .insert(RigidBody::Fixed)
         .insert(GravityScale(0.))
         .insert(Damping::default())
         .insert(ExternalImpulse::default())
@@ -69,7 +69,7 @@ fn shoot(cursor_pos: Vec2, position: Vec3, commands: &mut Commands, projectile_t
         speed: 1.,
         target: cursor_pos,
     })
-        .insert(RigidBody::Fixed)
+        .insert(RigidBody::Dynamic)
         .insert(Damping::default())
         .insert(ExternalForce::default())
         .insert(Collider::cuboid(10., 10.))
@@ -96,7 +96,7 @@ fn input_system(
         &mut ExternalImpulse,
         &mut Velocity,
         &mut Transform,
-        &Ship,
+        &mut Ship,
         Option<&ContinuousImpulse>
     )>,
 ) {
@@ -113,43 +113,37 @@ fn input_system(
         if rotation != 0 {
             velocity.angvel = rotation as f32 * ship.rotation_speed;
         }
-        velocity.angvel = 0.;
-        velocity.linvel = Vec2::ZERO;
         if let Some(_continuous_impulse) = continuous_impulse {
             impulse.impulse = (transform.rotation * (Vec3::Y * ship.speed)).truncate();
         }
 
         if let Some(cursor_position) = window.cursor_position() {
-            let ww = transform.translation.x + window.width() / 2. as f32;
-            let wh = transform.translation.y + window.height() / 2. as f32;
-            let delta_x = ww - cursor_position.x;
-            let delta_y = wh - cursor_position.y;
-            let rad = f32::atan2(delta_y, delta_x);
-            let mut deg = rad * (180. / PI);
-            if deg < 0. {
-                deg = (deg + 360.) % 360.;
-            }
-            transform.rotation = Quat::from_rotation_z((deg + 90.).to_radians());
-
             if buttons.just_pressed(MouseButton::Left) {
-                // shoot(cursor_position, transform.translation - Vec3::new(window.width(), window.height(), 0.0), &commands, &projectile_textures); // TODO: weird to pass textures by params here
+                let pos = (transform.translation + 100.).truncate();
+                let target = Vec2::new(cursor_position.x - window.width() / 2., cursor_position.y - window.height() / 2.);
+                let direction = target - pos;
+                let mut angle_to_target = direction.y.atan2(direction.x) - PI / 2.;
+                if angle_to_target < 0. {
+                    angle_to_target += 2.0 * PI;
+                }
 
-                let position = transform.translation - Vec3::new(window.width(), window.height(), 0.0);
-                let rot = Quat::from_rotation_z(f32::atan2(cursor_position.x - position.x, cursor_position.y - position.y));
                 commands.spawn(Projectile {
                     speed: 1.,
                     target: cursor_position,
                 })
-                    .insert(RigidBody::Fixed)
-                    .insert(Damping::default())
-                    .insert(ExternalForce::default())
+                    .insert(RigidBody::Dynamic)
+                    .insert(ExternalForce {
+                        force: direction.normalize() * 100.,
+                        ..default()
+                    })
                     .insert(Collider::cuboid(10., 10.))
                     .insert(ColliderMassProperties::Density(1.))
                     .insert(ColliderMassProperties::Mass(1.))
+                    .insert(GravityScale(0.))
                     .insert(SpriteBundle {
                         transform: Transform {
-                            translation: position,
-                            rotation: rot,
+                            translation: Vec3::new(transform.translation.x + 100., transform.translation.y + 100., 2.),
+                            rotation: Quat::from_rotation_z(angle_to_target),
                             ..default()
                         },
                         texture: projectile_textures.by_key("projectile1"),
@@ -158,5 +152,4 @@ fn input_system(
             }
         }
     }
-
 }
