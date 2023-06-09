@@ -19,7 +19,8 @@ impl Plugin for PlayerPlugin {
         app.add_system(setup.in_schedule(OnEnter(GameState::Playing)));
         app.add_systems(
             (
-                input_system,
+                move_system,
+                shoot_system,
                 dampening_system,
             ).in_set(OnUpdate(GameState::Playing)),
         );
@@ -103,23 +104,16 @@ fn shoot(cursor_position: Vec2, player_position: Vec3, image_assets: &Res<Assets
         });
 }
 
-fn input_system(
-    mut commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    projectile_textures: Res<ProjectileHandles>,
-    image_assets: Res<Assets<Image>>,
+fn move_system(
     keyboard_input: Res<Input<KeyCode>>,
-    buttons: Res<Input<MouseButton>>,
     mut query: Query<(
         &mut ExternalImpulse,
         &mut Velocity,
         &Transform,
         &mut Ship,
         Option<&ContinuousImpulse>
-    )>,
+    ), With<Player>>,
 ) {
-    let window = window_query.get_single().unwrap();
-
     for (mut impulse, mut velocity, transform, ship, continuous_impulse) in query.iter_mut() {
         let rotation = if keyboard_input.pressed(KeyCode::Q) || keyboard_input.pressed(KeyCode::Left) {
             1
@@ -134,7 +128,20 @@ fn input_system(
         if let Some(_continuous_impulse) = continuous_impulse {
             impulse.impulse = (transform.rotation * (Vec3::Y * ship.speed)).truncate();
         }
+    }
+}
 
+fn shoot_system(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    projectile_textures: Res<ProjectileHandles>,
+    image_assets: Res<Assets<Image>>,
+    buttons: Res<Input<MouseButton>>,
+    mut query: Query<&Transform, With<Player>>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    for transform in query.iter_mut() {
         if let Some(cursor_position) = window.cursor_position() {
             if buttons.just_pressed(MouseButton::Left) {
                 shoot(cursor_position, transform.translation, &image_assets, window, &mut commands, &projectile_textures);

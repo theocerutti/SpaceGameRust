@@ -28,8 +28,8 @@ fn destroy_leave_screen(
 
     if let Ok(player_transform) = player_transform {
         let destroy_size = Vec2 {
-            x: window.width() * 2,
-            y: window.height() * 2
+            x: window.width() * 2.,
+            y: window.height() * 2.
         };
 
         for (entity, transform) in query.iter_mut() {
