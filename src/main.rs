@@ -34,7 +34,7 @@ fn main() {
             .set(ImagePlugin::default_nearest())
         )
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(EntityInfoPlugin)

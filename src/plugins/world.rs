@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::components::components::{DestroyLeaveScreen, Player};
+use bevy_rapier2d::prelude::{CollisionEvent, ContactForceEvent, RapierContext};
+use crate::components::components::{Destroyable, DestroyLeaveScreen, Player, Projectile};
 use crate::state::GameState;
 
 pub struct WorldPlugin;
@@ -9,9 +10,26 @@ impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
+                handle_destroyable,
                 destroy_leave_screen,
             ).in_set(OnUpdate(GameState::Playing)),
         );
+    }
+}
+
+fn handle_destroyable(
+    rapier_context: Res<RapierContext>,
+    query_projectile: Query<Entity, With<Projectile>>,
+    query_destroyable: Query<Entity, With<Destroyable>>,
+    mut commands: Commands
+) {
+    for entity_projectile in query_projectile.iter() {
+        for entity_destroyable in query_destroyable.iter() {
+            if rapier_context.intersection_pair(entity_projectile, entity_destroyable) == Some(true) {
+                commands.entity(entity_destroyable).despawn();
+                commands.entity(entity_projectile).despawn();
+            }
+        }
     }
 }
 

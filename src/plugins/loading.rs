@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use rand::prelude::*;
+use field_count::FieldCount;
 
 use crate::state::GameState;
 
@@ -86,8 +88,7 @@ impl ProjectileHandles {
     }
 }
 
-
-#[derive(AssetCollection, Resource)]
+#[derive(AssetCollection, Resource, FieldCount)]
 pub struct AsteroidHandles {
     #[asset(path = "asteroids/asteroid1.png")]
     asteroid1: Handle<Image>,
@@ -108,5 +109,9 @@ impl AsteroidHandles {
             "asteroid4" => self.asteroid4.clone(),
             _ => panic!("asteroid atlas does not exist"),
         }
+    }
+
+    pub fn random(&self) -> Handle<Image> {
+        self.by_key(format!("asteroid{}", rand::thread_rng().gen_range(1..AsteroidHandles::field_count())).as_str())
     }
 }

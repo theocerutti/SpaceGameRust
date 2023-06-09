@@ -59,10 +59,10 @@ fn update_map_system(
 }
 
 fn setup(mut commands: Commands, bg_textures: Res<BackgroundHandles>, image_assets: Res<Assets<Image>>) {
-    commands.spawn(create_layer("bg1", 4., 0.6, 4, &bg_textures, &image_assets));
-    commands.spawn(create_layer("bg2", 2., 0.4, 3, &bg_textures, &image_assets));
-    commands.spawn(create_layer("bg3", 1., 0.2, 2, &bg_textures, &image_assets));
-    commands.spawn(create_layer("bg4", 0.5, 0.1, 1, &bg_textures, &image_assets));
+    commands.spawn(create_layer("bg1", 1., 0.6, 4, &bg_textures, &image_assets));
+    commands.spawn(create_layer("bg2", 0.6, 0.4, 3, &bg_textures, &image_assets));
+    commands.spawn(create_layer("bg3", 0.4, 0.2, 2, &bg_textures, &image_assets));
+    commands.spawn(create_layer("bg4", 0.2, 0.1, 1, &bg_textures, &image_assets));
 }
 
 fn create_layer(handle_key: &str, speed: f32, opacity: f32, order_index: i32, bg_textures: &Res<BackgroundHandles>, image_assets: &Res<Assets<Image>>) -> (SpriteBundle, ParallaxBackgroundLayer) {

@@ -29,3 +29,15 @@ pub struct ParallaxBackgroundLayer {
 
 #[derive(Component)]
 pub struct Projectile;
+
+#[derive(Component)]
+pub struct DamageableCollider;
+
+#[derive(Component)]
+pub struct Asteroid;
+
+#[derive(Component)]
+pub struct Destroyable;
+
+#[derive(Component)]
+pub struct DeathCollider;
