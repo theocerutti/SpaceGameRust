@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_rapier2d::prelude::*;
@@ -44,7 +45,7 @@ fn create_player(mut commands: Commands, handle: Handle<Image>, image_assets: Re
             texture: handle,
             ..default()
         })
-        .insert(RigidBody::Fixed)
+        .insert(RigidBody::Dynamic)
         .insert(GravityScale(0.))
         .insert(Damping::default())
         .insert(ExternalImpulse::default())
@@ -63,25 +64,41 @@ fn dampening_system(time: Res<Time>, mut query: Query<&mut Velocity, With<Player
     }
 }
 
-fn shoot(cursor_pos: Vec2, position: Vec3, commands: &mut Commands, projectile_textures: &Res<ProjectileHandles>) {
-    let rot = Quat::from_rotation_z(f32::atan2(cursor_pos.x - position.x, cursor_pos.y - position.y));
-    commands.spawn(Projectile {
-        speed: 1.,
-        target: cursor_pos,
-    })
+fn shoot(cursor_position: Vec2, player_position: Vec3, image_assets: &Res<Assets<Image>>, window: &Window, commands: &mut Commands, projectile_textures: &Res<ProjectileHandles>) {
+    let direction = Vec2::new(cursor_position.x - window.width() / 2., cursor_position.y - window.height() / 2.);
+    let mut angle_to_target = direction.y.atan2(direction.x) - PI / 2.;
+    if angle_to_target < 0. {
+        angle_to_target += 2.0 * PI;
+    }
+
+    let handle = projectile_textures.by_key("projectile1");
+    let image_asset = image_assets.get(&handle).unwrap();
+    let size_asset = Vec2 {
+        x: image_asset.texture_descriptor.size.width as f32,
+        y: image_asset.texture_descriptor.size.height as f32,
+    };
+
+    let projectile_speed = 1000.;
+
+    commands.spawn(Projectile)
         .insert(RigidBody::Dynamic)
-        .insert(Damping::default())
-        .insert(ExternalForce::default())
-        .insert(Collider::cuboid(10., 10.))
+        .insert(ExternalForce {
+            force: direction.normalize() * projectile_speed,
+            ..default()
+        })
+        .insert(DestroyLeaveScreen)
+        .insert(Sensor::default())
+        .insert(Collider::cuboid(size_asset.x / 2., size_asset.y / 2.))
         .insert(ColliderMassProperties::Density(1.))
         .insert(ColliderMassProperties::Mass(1.))
+        .insert(GravityScale(0.))
         .insert(SpriteBundle {
             transform: Transform {
-                translation: position,
-                rotation: rot,
+                translation: Vec3::new(player_position.x, player_position.y, 0.),
+                rotation: Quat::from_rotation_z(angle_to_target - PI / 2.),
                 ..default()
             },
-            texture: projectile_textures.by_key("projectile1"),
+            texture: handle,
             ..default()
         });
 }
@@ -90,19 +107,20 @@ fn input_system(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     projectile_textures: Res<ProjectileHandles>,
+    image_assets: Res<Assets<Image>>,
     keyboard_input: Res<Input<KeyCode>>,
     buttons: Res<Input<MouseButton>>,
     mut query: Query<(
         &mut ExternalImpulse,
         &mut Velocity,
-        &mut Transform,
+        &Transform,
         &mut Ship,
         Option<&ContinuousImpulse>
     )>,
 ) {
     let window = window_query.get_single().unwrap();
 
-    for (mut impulse, mut velocity, mut transform, ship, continuous_impulse) in query.iter_mut() {
+    for (mut impulse, mut velocity, transform, ship, continuous_impulse) in query.iter_mut() {
         let rotation = if keyboard_input.pressed(KeyCode::Q) || keyboard_input.pressed(KeyCode::Left) {
             1
         } else if keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right) {
@@ -119,36 +137,7 @@ fn input_system(
 
         if let Some(cursor_position) = window.cursor_position() {
             if buttons.just_pressed(MouseButton::Left) {
-                let pos = (transform.translation + 100.).truncate();
-                let target = Vec2::new(cursor_position.x - window.width() / 2., cursor_position.y - window.height() / 2.);
-                let direction = target - pos;
-                let mut angle_to_target = direction.y.atan2(direction.x) - PI / 2.;
-                if angle_to_target < 0. {
-                    angle_to_target += 2.0 * PI;
-                }
-
-                commands.spawn(Projectile {
-                    speed: 1.,
-                    target: cursor_position,
-                })
-                    .insert(RigidBody::Dynamic)
-                    .insert(ExternalForce {
-                        force: direction.normalize() * 100.,
-                        ..default()
-                    })
-                    .insert(Collider::cuboid(10., 10.))
-                    .insert(ColliderMassProperties::Density(1.))
-                    .insert(ColliderMassProperties::Mass(1.))
-                    .insert(GravityScale(0.))
-                    .insert(SpriteBundle {
-                        transform: Transform {
-                            translation: Vec3::new(transform.translation.x + 100., transform.translation.y + 100., 2.),
-                            rotation: Quat::from_rotation_z(angle_to_target),
-                            ..default()
-                        },
-                        texture: projectile_textures.by_key("projectile1"),
-                        ..default()
-                    });
+                shoot(cursor_position, transform.translation, &image_assets, window, &mut commands, &projectile_textures);
             }
         }
     }

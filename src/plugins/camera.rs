@@ -36,7 +36,8 @@ fn movement_system(
 
     if let Ok(player_transform) = player_transform {
         if let Ok(mut camera_transform) = camera_transform {
-            camera_transform.translation = player_transform.translation;
+            camera_transform.translation.x = player_transform.translation.x;
+            camera_transform.translation.y = player_transform.translation.y;
         }
     }
 }

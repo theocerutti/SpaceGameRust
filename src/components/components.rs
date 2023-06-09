@@ -13,3 +13,6 @@ pub struct ContinuousImpulse;
 pub struct EntityInfo {
     pub last_position: Vec3,
 }
+
+#[derive(Component)]
+pub struct DestroyLeaveScreen;
