@@ -1,16 +1,9 @@
 use bevy::app::CoreSet::PostUpdate;
 use bevy::prelude::*;
 
-use crate::components::components::EntityInfo;
+use crate::components::components::{EntityInfo, ParallaxBackgroundLayer};
 use crate::plugins::loading::BackgroundHandles;
 use crate::state::GameState;
-
-#[derive(Component)]
-pub struct ParallaxBackgroundLayer {
-    pub speed: f32,
-    pub handle_key: String,
-    pub order_index: i32,
-}
 
 pub struct ParallaxBackgroundPlugin;
 

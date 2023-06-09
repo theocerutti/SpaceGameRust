@@ -8,6 +8,7 @@ use plugins::{
     player::*,
     entity_info::*,
     world::*,
+    map::*
 };
 use state::*;
 
@@ -35,6 +36,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(50.))
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(WorldPlugin)
+        .add_plugin(MapPlugin)
         .add_plugin(EntityInfoPlugin)
         .add_plugin(ParallaxBackgroundPlugin)
         .add_plugin(LoadingPlugin)

@@ -7,6 +7,9 @@ pub struct Ship {
 }
 
 #[derive(Component)]
+pub struct Player;
+
+#[derive(Component)]
 pub struct ContinuousImpulse;
 
 #[derive(Component)]
@@ -16,3 +19,13 @@ pub struct EntityInfo {
 
 #[derive(Component)]
 pub struct DestroyLeaveScreen;
+
+#[derive(Component)]
+pub struct ParallaxBackgroundLayer {
+    pub speed: f32,
+    pub handle_key: String,
+    pub order_index: i32,
+}
+
+#[derive(Component)]
+pub struct Projectile;

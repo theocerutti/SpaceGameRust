@@ -6,11 +6,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::components::components::*;
 use crate::plugins::loading::{ProjectileHandles, ShipHandles};
-use crate::plugins::projectile::Projectile;
 use crate::state::GameState;
-
-#[derive(Component)]
-pub struct Player;
 
 pub struct PlayerPlugin;
 

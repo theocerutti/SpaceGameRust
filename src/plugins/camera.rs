@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::components::components::EntityInfo;
-use crate::plugins::player::Player;
+use crate::components::components::{EntityInfo, Player};
 use crate::state::GameState;
 
-#[derive(Component)]
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {

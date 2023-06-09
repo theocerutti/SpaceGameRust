@@ -1,8 +1,5 @@
 use bevy::prelude::*;
 
-#[derive(Component)]
-pub struct Projectile;
-
 pub struct ProjectilePlugin;
 
 impl Plugin for ProjectilePlugin {

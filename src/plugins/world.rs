@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use crate::components::components::DestroyLeaveScreen;
-use crate::plugins::player::Player;
-use crate::plugins::projectile::Projectile;
+use crate::components::components::{DestroyLeaveScreen, Player};
 use crate::state::GameState;
 
 pub struct WorldPlugin;

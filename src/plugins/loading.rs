@@ -13,6 +13,7 @@ impl Plugin for LoadingPlugin {
         app.add_collection_to_loading_state::<_, ShipHandles>(GameState::Load);
         app.add_collection_to_loading_state::<_, BackgroundHandles>(GameState::Load);
         app.add_collection_to_loading_state::<_, ProjectileHandles>(GameState::Load);
+        app.add_collection_to_loading_state::<_, AsteroidHandles>(GameState::Load);
     }
 }
 
@@ -81,6 +82,31 @@ impl ProjectileHandles {
         match key {
             "projectile1" => self.projectile1.clone(),
             _ => panic!("projectile atlas does not exist"),
+        }
+    }
+}
+
+
+#[derive(AssetCollection, Resource)]
+pub struct AsteroidHandles {
+    #[asset(path = "asteroids/asteroid1.png")]
+    asteroid1: Handle<Image>,
+    #[asset(path = "asteroids/asteroid2.png")]
+    asteroid2: Handle<Image>,
+    #[asset(path = "asteroids/asteroid3.png")]
+    asteroid3: Handle<Image>,
+    #[asset(path = "asteroids/asteroid4.png")]
+    asteroid4: Handle<Image>,
+}
+
+impl AsteroidHandles {
+    pub fn by_key(&self, key: &str) -> Handle<Image> {
+        match key {
+            "asteroid1" => self.asteroid1.clone(),
+            "asteroid2" => self.asteroid2.clone(),
+            "asteroid3" => self.asteroid3.clone(),
+            "asteroid4" => self.asteroid4.clone(),
+            _ => panic!("asteroid atlas does not exist"),
         }
     }
 }
